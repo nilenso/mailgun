@@ -21,6 +21,11 @@ The `send-mail` function takes two argument mailgun credentials and email conten
 ```
 The value of the `:attachment` has to be a vector of files to be attached. If there are no files to be attached then don't include the `:attachment` keyword in the content.
 
+To send the email
+```clj
+(mail/send-mail creds content)
+```
+
 ## License
 
 Copyright © 2016 Nilenso
