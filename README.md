@@ -10,7 +10,7 @@ A Clojure mailgun API.
 
 The `send-mail` function takes two argument mailgun credentials and email content which has to be given in the following format
 ```clj
-(def creds {:key "mail-gun-key" :domain "bar.com"})
+(def creds {:key "key-3ax6xnjp29jd6fds4gc373sgvjxteol1" :domain "bar.com"})
 
 (def content {:from "no-reply@bar.com"
               :to "someone@foo.com"
