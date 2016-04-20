@@ -1,9 +1,14 @@
 # mailgun
+[![Clojars Project](https://img.shields.io/clojars/v/nilenso/mailgun.svg)](https://clojars.org/nilenso/mailgun)
 
 A Clojure mailgun API.
 
-## Usage
+## Leiningen
+```clj
+[nilenso/mailgun "0.1.0-SNAPSHOT"]
+```
 
+## Usage
 ```clj
 (:require [mailgun.mail :as mail])
 ```

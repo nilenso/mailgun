@@ -1,4 +1,4 @@
-(defproject mailgun "0.1.0-SNAPSHOT"
+(defproject nilenso/mailgun "0.1.0-SNAPSHOT"
   :description "Mailgun API in clojure"
   :url "http://github.com/nilenso/mailgun"
   :license {:name "Eclipse Public License"
