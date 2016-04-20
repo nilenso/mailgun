@@ -1,16 +1,11 @@
 (ns mailgun.mail
   (:require [clj-http.client :as client]))
 
-(def api-url "api.mailgun.net/v3/")
+(defonce api-url "api.mailgun.net/v3/")
 
 (defn build-url
-  [creds]
-  (str "https://api:"
-       (:key creds)
-       "@"
-       api-url
-       (:domain creds)
-       "/messages"))
+  [{:keys [key domain]}]
+  (str "https://api:" key "@" api-url domain "/messages"))
 
 (defn gen-multipart
   [{:keys [attachment] :as params}]
@@ -30,7 +25,7 @@
     {:multipart (gen-multipart params)}
     {:form-params params}))
 
-(defn send'
+(defn send-mail
   [creds params]
   (let [url (build-url creds)
         body (build-body params)]
