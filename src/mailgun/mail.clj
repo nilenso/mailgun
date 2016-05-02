@@ -1,13 +1,11 @@
 (ns mailgun.mail
   (:require [clj-http.client :as client]))
 
-(defonce api-url "api.mailgun.net/v3/")
-
 (defn build-url
   "Build the url based on the mailgun passkey and the domain specified.
   The url so generated would be : https://api:key@api.mailgun.net/v3/domain/messages"
   [{:keys [key domain]}]
-  (str "https://api:" key "@" api-url domain "/messages"))
+  (str "https://api:" key "@api.mailgun.net/v3/" domain "/messages"))
 
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
