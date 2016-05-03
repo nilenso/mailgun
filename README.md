@@ -1,7 +1,7 @@
 # mailgun
 [![Clojars Project](https://img.shields.io/clojars/v/nilenso/mailgun.svg)](https://clojars.org/nilenso/mailgun)
 
-A Clojure mailgun API.
+A Clojure wrapper for mailgun API.
 
 ## Leiningen
 ```clj
@@ -47,7 +47,7 @@ There are functions that help you retrieve stored messages from mailgun and pars
       msg-body (->> msg-key
                     (mail/get-stored-message creds)
                     :body)
-      recipients (mail/parse [to" "cc" "bcc"] msg-body)
+      recipients (mail/parse ["to" "cc" "bcc"] msg-body)
       message (mail/parse-message msg-body)]
   (println recipients)
   (println message))
