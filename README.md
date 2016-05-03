@@ -5,7 +5,16 @@ A Clojure mailgun API.
 
 ## Leiningen
 ```clj
-[nilenso/mailgun "0.1.0-SNAPSHOT"]
+[nilenso/mailgun "0.2.0"]
+```
+
+## Maven
+```xml
+<dependency>
+  <groupId>nilenso</groupId>
+  <artifactId>mailgun</artifactId>
+  <version>0.2.0</version>
+</dependency>
 ```
 
 ## Usage
