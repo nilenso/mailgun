@@ -26,11 +26,33 @@ The `send-mail` function takes two argument mailgun credentials and email conten
 ```
 The value of the `:attachment` has to be a vector of files to be attached. If there are no files to be attached then don't include the `:attachment` keyword in the content.
 
-To send the email
+### send message
 ```clj
 (mail/send-mail creds content)
 ```
 
+### get stored message
+There are functions that help you retrieve stored messages from mailgun and parse them as required and also download attachments if any. The `get-stored-message` function gets the complete mail response from mailgun, and then `:body` of the response can me parsed using `parse` or `parse-message` functions.
+```clj
+(let [msg-key "eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19"
+      msg-body (->> msg-key
+                    (mail/get-stored-message creds)
+                    :body)
+      recipients (mail/parse [to" "cc" "bcc"] msg-body)
+      message (mail/parse-message msg-body)]
+  (println recipients)
+  (println message))
+=> {:to "bar124@foomail.com" :bcc "someone_else@foo.in" :cc nil}
+=> {:sender "foo@bar.com", :to "bar123@foomail.com", :bcc "someone_else@foo.in", :cc nil, :subject "Message Subject", :date "Mon, 2 May 2016 14:43:28 +0530", :body-html "<div dir=\"ltr\"><br clear=\"all\"><div><br></div><br>\r\n</div>\r\n", :attachments [{"url" "https://api.mailgun.net/v2/domains/foomail.in/messages/eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19/attachments/0", "content-type" "image/jpeg", "name" "Image1.jpg", "size" 267928} {"url" "https://api.mailgun.net/v2/domains/foomail.in/messages/eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19/attachments/1", "content-type" "image/jpeg", "name" "Image2.jpg", "size" 477946}]}
+```
+
+### download attachments
+The `download-attachment` function can be used to download attachments give the attachment url and the credentials
+```clj
+(let [attch-url "https://api.mailgun.net/v2/domains/foomail.in/messages/eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19/attachments/0"]
+  (mail/download-attachment creds attch-url))
+=> #object[java.io.BufferedInputStream 0xffb1f95 "java.io.BufferedInputStream@ffb1f95"]
+```
 ## License
 
 Copyright © 2016 Nilenso

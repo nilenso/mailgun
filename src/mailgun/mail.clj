@@ -1,7 +1,8 @@
 (ns mailgun.mail
   (:require [mailgun.util :as util]
             [clj-http.client :as client]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [clojure.java.io :as io]))
 
 (defn gen-auth
   "Returns the basic authentication with the mailgun api key as password"
@@ -91,3 +92,16 @@
   (parse
    ["sender" "To" "Bcc" "Cc" "Subject" "Date" "body-html" "attachments"]
    message-body))
+
+(defn download-attachment
+  "Download attachment from message stored in mailgun providing login credentials
+   and attachment mailgun url"
+  [{:keys [key]} url]
+  (let [params (merge {:socket-timeout 10000
+                       :conn-timeout 10000
+                       :as :byte-array}
+                      (gen-auth key))]
+    (->> params
+         (client/get url)
+         :body
+         io/input-stream)))
