@@ -1,6 +1,7 @@
 (ns mailgun.mail
   (:require [mailgun.util :as util]
-            [clj-http.client :as client]))
+            [clj-http.client :as client]
+            [clojure.string :as string]))
 
 (defn gen-auth
   "Returns the basic authentication with the mailgun api key as password"
@@ -21,11 +22,11 @@
       base-url
       (str route)))
 
-(defn gen-mail-url
+(defn gen-message-url
   "Generate the mailgun url to get a message with a message-key"
-  [route mail-key domain]
+  [route message-key domain]
   (let [domain (str "domains/" domain)
-        route (str route "/" mail-key)]
+        route (str route "/" message-key)]
     (gen-url route domain)))
 
 (defn gen-multipart
@@ -56,10 +57,10 @@
               :subject \"Test mail\"
               :html \"Hi ,</br> How are you ?\"
               :attachment [(clojure.java.io/file \"path/to/file\")]})"
-  [{:keys [domain key] :as creds} mail-content]
+  [{:keys [domain key] :as creds} message-content]
   (let [url (gen-url "/messages" domain)
         content (merge (gen-auth key)
-                       (gen-body mail-content))]
+                       (gen-body message-content))]
     (client/post url content)))
 
 (defn get-stored-events
@@ -69,9 +70,24 @@
         auth (gen-auth key)]
     (util/json-to-clj (client/get url auth))))
 
-(defn get-stored-mail
+(defn get-stored-message
   "Returns a stored message given the message-key"
-  [{:keys [domain key]} mail-key]
-  (let [url (gen-mail-url "/messages" mail-key domain)
+  [{:keys [domain key]} message-key]
+  (let [url (gen-mail-url "/messages" message-key domain)
         auth (gen-auth key)]
     (util/json-to-clj (client/get url auth))))
+
+(defn parse
+  "Pares the message-body based on the vector of keys given as input"
+  [key-vec message-body]
+  (reduce (fn [m k]
+            (assoc m (keyword (string/lower-case k)) (message-body k)))
+          {}
+          key-vec))
+
+(defn parse-message
+  "Parse the message from mailgun to basic message tags"
+  [message-body]
+  (parse
+   ["sender" "To" "Bcc" "Cc" "Subject" "Date" "body-html" "attachments"]
+   message-body))
