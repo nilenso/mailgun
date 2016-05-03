@@ -4,8 +4,8 @@
 
 (deftest test-build-url
   (testing "build-url funtion return a valid mailgun url"
-    (is (= "https://api:key@api.mailgun.net/v3/domain/messages"
-           (mail/build-url {:key "key" :domain "domain"})))))
+    (is (= "https://api.mailgun.net/v3/foo.org/messages"
+           (mail/gen-url "/messages" "foo.org")))))
 
 (deftest test-build-body
   (testing "build-body to see if it returns a valid map when ther is no attachment"
@@ -14,7 +14,7 @@
                   :subject "Test"
                   :html "Body"}]
       (is (= {:form-params params}
-             (mail/build-body params)))))
+             (mail/gen-body params)))))
   (testing "build-body to see if return a valid multipart map"
     (let [multi-part-map {:multipart [{:name "from" :content "foo@bar.com"}
                                        {:name "to" :content "bar@foo.com"}
@@ -27,4 +27,4 @@
                           :subject "Test"
                           :html "Body"
                           :attachment ["attachment1" "attachment2"]}]
-      (is (= multi-part-map (mail/build-body request-params))))))
+      (is (= multi-part-map (mail/gen-body request-params))))))

@@ -1,11 +1,24 @@
 (ns mailgun.mail
   (:require [clj-http.client :as client]))
 
-(defn build-url
-  "Build the url based on the mailgun passkey and the domain specified.
-  The url so generated would be : https://api:key@api.mailgun.net/v3/domain/messages"
-  [{:keys [key domain]}]
-  (str "https://api:" key "@api.mailgun.net/v3/" domain "/messages"))
+(defn gen-auth
+  "Returns the basic authentication with the mailgun api key as password"
+  [password]
+  {:basic-auth ["api" password]})
+
+(defn base-url
+  "Returns the base mailgun api url"
+  [domain]
+  (str "https://api.mailgun.net/v3/" domain))
+
+(defn gen-url
+  "Build the mailgun url based on the mailgun domain and the end route.
+   Eg : (build-url \"/messages\" \"foo.org\" )
+      => https://api.mailgun.net/v3/foo.org/messages"
+  [route domain]
+  (-> domain
+      base-url
+      (str route)))
 
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
@@ -16,7 +29,7 @@
         remaining (map #(format (name %) (% params)) key-list)]
     (into [] (concat remaining attachments))))
 
-(defn build-body
+(defn gen-body
   "Build the request body that has to be sent to mailgun, it could be a map of simple form-params
   or could be a multipart request body. If the request has one or more attachments then the
   it would be a multipart else it would be a form-param"
@@ -35,7 +48,8 @@
               :subject \"Test mail\"
               :html \"Hi ,</br> How are you ?\"
               :attachment [(clojure.java.io/file \"path/to/file\")]})"
-  [creds mail-content]
-  (let [url (build-url creds)
-        body (build-body mail-content)]
-    (client/post url body)))
+  [{:keys [domain key] :as creds} mail-content]
+  (let [url (gen-url "/messages" domain)
+        content (merge (gen-auth key)
+                       (gen-body mail-content))]
+    (client/post url content)))
