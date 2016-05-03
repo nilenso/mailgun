@@ -1,5 +1,6 @@
 (ns mailgun.mail
-  (:require [clj-http.client :as client]))
+  (:require [mailgun.util :as util]
+            [clj-http.client :as client]))
 
 (defn gen-auth
   "Returns the basic authentication with the mailgun api key as password"
@@ -19,6 +20,13 @@
   (-> domain
       base-url
       (str route)))
+
+(defn gen-mail-url
+  ""
+  [route mail-key domain]
+  (let [domain (str "domains/" domain)
+        route (str route "/" mail-key)]
+    (gen-url route domain)))
 
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
@@ -53,3 +61,17 @@
         content (merge (gen-auth key)
                        (gen-body mail-content))]
     (client/post url content)))
+
+(defn get-stored-events
+  ""
+  [{:keys [domain key]}]
+  (let [url (gen-url "/events" domain)
+        auth (gen-auth key)]
+    (util/json-to-clj (client/get url auth))))
+
+(defn get-stored-mail
+  ""
+  [{:keys [domain key]} mail-key]
+  (let [url (gen-mail-url "/messages" mail-key domain)
+        auth (gen-auth key)]
+    (util/json-to-clj (client/get url auth))))
