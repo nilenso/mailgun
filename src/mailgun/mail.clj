@@ -22,7 +22,7 @@
       (str route)))
 
 (defn gen-mail-url
-  ""
+  "Generate the mailgun url to get a message with a message-key"
   [route mail-key domain]
   (let [domain (str "domains/" domain)
         route (str route "/" mail-key)]
@@ -63,14 +63,14 @@
     (client/post url content)))
 
 (defn get-stored-events
-  ""
+  "Returns stored events"
   [{:keys [domain key]}]
   (let [url (gen-url "/events" domain)
         auth (gen-auth key)]
     (util/json-to-clj (client/get url auth))))
 
 (defn get-stored-mail
-  ""
+  "Returns a stored message given the message-key"
   [{:keys [domain key]} mail-key]
   (let [url (gen-mail-url "/messages" mail-key domain)
         auth (gen-auth key)]
