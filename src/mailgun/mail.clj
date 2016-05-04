@@ -1,5 +1,8 @@
 (ns mailgun.mail
-  (:require [clj-http.client :as client]))
+  (:require [mailgun.util :as util]
+            [clj-http.client :as client]
+            [clojure.string :as string]
+            [clojure.java.io :as io]))
 
 (defn gen-auth
   "Returns the basic authentication with the mailgun api key as password"
@@ -19,6 +22,13 @@
   (-> domain
       base-url
       (str route)))
+
+(defn gen-message-url
+  "Generate the mailgun url to get a message with a message-key"
+  [route message-key domain]
+  (let [domain (str "domains/" domain)
+        route (str route "/" message-key)]
+    (gen-url route domain)))
 
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
@@ -48,8 +58,50 @@
               :subject \"Test mail\"
               :html \"Hi ,</br> How are you ?\"
               :attachment [(clojure.java.io/file \"path/to/file\")]})"
-  [{:keys [domain key] :as creds} mail-content]
+  [{:keys [domain key] :as creds} message-content]
   (let [url (gen-url "/messages" domain)
         content (merge (gen-auth key)
-                       (gen-body mail-content))]
+                       (gen-body message-content))]
     (client/post url content)))
+
+(defn get-stored-events
+  "Returns stored events"
+  [{:keys [domain key]}]
+  (let [url (gen-url "/events" domain)
+        auth (gen-auth key)]
+    (util/json-to-clj (client/get url auth))))
+
+(defn get-stored-message
+  "Returns a stored message given the message-key"
+  [{:keys [domain key]} message-key]
+  (let [url (gen-mail-url "/messages" message-key domain)
+        auth (gen-auth key)]
+    (util/json-to-clj (client/get url auth))))
+
+(defn parse
+  "Pares the message-body based on the vector of keys given as input"
+  [key-vec message-body]
+  (reduce (fn [m k]
+            (assoc m (keyword (string/lower-case k)) (message-body k)))
+          {}
+          key-vec))
+
+(defn parse-message
+  "Parse the message from mailgun to basic message tags"
+  [message-body]
+  (parse
+   ["sender" "To" "Bcc" "Cc" "Subject" "Date" "body-html" "attachments"]
+   message-body))
+
+(defn download-attachment
+  "Download attachment from message stored in mailgun providing login credentials
+   and attachment mailgun url"
+  [{:keys [key]} url]
+  (let [params (merge {:socket-timeout 10000
+                       :conn-timeout 10000
+                       :as :byte-array}
+                      (gen-auth key))]
+    (->> params
+         (client/get url)
+         :body
+         io/input-stream)))
