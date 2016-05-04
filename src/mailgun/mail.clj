@@ -33,11 +33,11 @@
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
   [{:keys [attachment] :as params}]
-  (let [key-list (remove #(= :attachment %) (keys params))
+  (let [key-list (remove #{:attachment} (keys params))
         format (fn [k v] {:name k :content v})
         attachments (map #(format "attachment" %) attachment)
-        remaining (map #(format (name %) (% params)) key-list)]
-    (into [] (concat remaining attachments))))
+        remaining-fields (map #(format (name %) (% params)) key-list)]
+    (concat remaining-fields attachments)))
 
 (defn gen-body
   "Build the request body that has to be sent to mailgun, it could be a map of simple form-params
@@ -74,17 +74,16 @@
 (defn get-stored-message
   "Returns a stored message given the message-key"
   [{:keys [domain key]} message-key]
-  (let [url (gen-mail-url "/messages" message-key domain)
+  (let [url (gen-message-url "/messages" message-key domain)
         auth (gen-auth key)]
     (util/json-to-clj (client/get url auth))))
 
 (defn parse
   "Pares the message-body based on the vector of keys given as input"
   [key-vec message-body]
-  (reduce (fn [m k]
-            (assoc m (keyword (string/lower-case k)) (message-body k)))
-          {}
-          key-vec))
+  (->> key-vec
+     (map (fn [k] {(keyword (string/lower-case k)) (message-body k)}))
+     (into {})))
 
 (defn parse-message
   "Parse the message from mailgun to basic message tags"
