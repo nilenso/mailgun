@@ -5,7 +5,7 @@ A Clojure wrapper for mailgun API.
 
 ## Leiningen
 ```clj
-[nilenso/mailgun "0.2.1"]
+[nilenso/mailgun "0.2.2"]
 ```
 
 ## Maven
@@ -13,13 +13,14 @@ A Clojure wrapper for mailgun API.
 <dependency>
   <groupId>nilenso</groupId>
   <artifactId>mailgun</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
 </dependency>
 ```
 
 ## Usage
 ```clj
-(:require [mailgun.mail :as mail])
+(:require [mailgun.mail :as mail]
+          [mailgun.util :refer [to-file]])
 ```
 
 The `send-mail` function takes two argument mailgun credentials and email content which has to be given in the following format
@@ -30,8 +31,7 @@ The `send-mail` function takes two argument mailgun credentials and email conten
               :to "someone@foo.com"
               :subject "Test"
               :html "test body"
-              :attachment [(clojure.java.io/file "/path/to/file1.doc")
-                           (clojure.java.io/file "/path/to/file2.doc")]})
+              :attachment (to-file ["/path/to/file1.doc" "/path/to/file2.doc"])})
 ```
 The value of the `:attachment` has to be a vector of files to be attached. If there are no files to be attached then don't include the `:attachment` keyword in the content.
 
@@ -41,7 +41,7 @@ The value of the `:attachment` has to be a vector of files to be attached. If th
 ```
 
 ### get stored message
-There are functions that help you retrieve stored messages from mailgun and parse them as required and also download attachments if any. The `get-stored-message` function gets the complete mail response from mailgun, and then `:body` of the response can me parsed using `parse` or `parse-message` functions.
+There are functions that help you retrieve stored messages from mailgun and parse them as required and also download attachments if any. The `get-stored-message` function gets the complete mail response from mailgun, and then `:body` of the response can be parsed using `parse` or `parse-message` functions.
 ```clj
 (let [msg-key "eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19"
       msg-body (->> msg-key

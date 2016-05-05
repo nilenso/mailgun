@@ -34,9 +34,11 @@
   "Generate the multipart request param incase the request has an attachment"
   [{:keys [attachment] :as params}]
   (let [key-list (remove #{:attachment} (keys params))
-        format (fn [k v] {:name k :content v})
-        attachments (map #(format "attachment" %) attachment)
-        remaining-fields (map #(format (name %) (% params)) key-list)]
+        format-map (fn [k v] {:name k :content v})
+        attachments (->> attachment
+                         util/to-vector
+                         (map #(format-map "attachment" %)))
+        remaining-fields (map #(format-map (name %) (% params)) key-list)]
     (concat remaining-fields attachments)))
 
 (defn gen-body
@@ -44,9 +46,9 @@
   or could be a multipart request body. If the request has one or more attachments then the
   it would be a multipart else it would be a form-param"
   [{:keys [attachment] :as params}]
-  (if attachment
-    {:multipart (gen-multipart params)}
-    {:form-params params}))
+  (if (nil? attachment)
+    {:form-params params}
+    {:multipart (gen-multipart params)}))
 
 (defn send-mail
   "Send email to mailgun with the passed creds and the content
