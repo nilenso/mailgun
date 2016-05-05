@@ -9,7 +9,7 @@
                                  :body
                                  json/parse-string)))
 
-(defn to-vector
+(defn ensure-sequential
   "Checks if `x` is a vector or not, if not then returns a vector `x`"
   [x]
   (if (sequential? x)
@@ -21,5 +21,5 @@
   [attachments]
   (when-not (nil? attachments)
     (->> attachments
-         to-vector
+         ensure-sequential
          (map #(io/file %)))))

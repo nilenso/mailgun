@@ -34,11 +34,11 @@
   "Generate the multipart request param incase the request has an attachment"
   [{:keys [attachment] :as params}]
   (let [key-list (remove #{:attachment} (keys params))
-        format-map (fn [k v] {:name k :content v})
+        ->multipart-param (fn [k v] {:name k :content v})
         attachments (->> attachment
-                         util/to-vector
-                         (map #(format-map "attachment" %)))
-        remaining-fields (map #(format-map (name %) (% params)) key-list)]
+                         util/ensure-sequential
+                         (map #(->multipart-param "attachment" %)))
+        remaining-fields (map #(->multipart-param (name %) (% params)) key-list)]
     (concat remaining-fields attachments)))
 
 (defn gen-body
