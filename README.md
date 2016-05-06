@@ -40,14 +40,31 @@ The value of the `:attachment` has to be a vector of files to be attached. If th
 (mail/send-mail creds content)
 ```
 
-### get stored message
-There are functions that help you retrieve stored messages from mailgun and parse them as required and also download attachments if any. The `get-stored-message` function gets the complete mail response from mailgun, and then `:body` of the response can be parsed using `parse` or `parse-message` functions.
+### get messages
+There are functions that help you retrieve stored messages from mailgun and parse them as required and also download attachments if any.
+
+- get-stored-message
+The `get-stored-message` function gets the complete mail response from mailgun.
+```clj
+(mail/get-stored-message creds msg-key)
+```
+- parse
+This helps parse the `:body` of the mail
+ ```clj
+ (mail/parse ["subject"] msg-body)
+ ```
+- parse-message
+This is wrapper over the parse function, which parses the basic fields like - `to`, `sender`, `bcc`, `cc`, `subject`, `date`, `body-html` and `attachments`.
+```clj
+(mail/parse-message msg-body)
+```
+Here is an example -
 ```clj
 (let [msg-key "eyJRhImsiOiAiZ1IiwgInMiOiAiNmNlTQ3NTY4ZGZSwg0MWRmLWEwODQtNzCJjIjogImJpZ3RhbmtzMiJMtMzQ0OC0NWJiY2Q4ODQMDkwMzk4ZCIsIwIjogdHJ19"
       msg-body (->> msg-key
                     (mail/get-stored-message creds)
                     :body)
-      recipients (mail/parse ["to" "cc" "bcc"] msg-body)
+      recipients (mail/parse ["To" "Cc" "Bcc"] msg-body)
       message (mail/parse-message msg-body)]
   (println recipients)
   (println message))
