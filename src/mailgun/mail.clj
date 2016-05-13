@@ -30,6 +30,12 @@
         route (str route "/" message-key)]
     (gen-url route domain)))
 
+(defn validate-message
+  "Check if the message map has the minimum required fields"
+  [message-content]
+  (let [mandatory-keys #{:to :from}]
+    (every? message-content mandatory-keys)))
+
 (defn gen-multipart
   "Generate the multipart request param incase the request has an attachment"
   [{:keys [attachment] :as params}]
@@ -61,10 +67,12 @@
               :html \"Hi ,</br> How are you ?\"
               :attachment [(clojure.java.io/file \"path/to/file\")]})"
   [{:keys [domain key] :as creds} message-content]
-  (let [url (gen-url "/messages" domain)
-        content (merge (gen-auth key)
-                       (gen-body message-content))]
-    (client/post url content)))
+  (if (validate-message message-content)
+    (let [url (gen-url "/messages" domain)
+          content (merge (gen-auth key)
+                         (gen-body message-content))]
+      (client/post url content))
+    (throw (Exception. "Invalid/Incomplete message-content"))))
 
 (defn get-stored-events
   "Returns stored events"
