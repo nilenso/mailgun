@@ -5,7 +5,7 @@ A Clojure wrapper for mailgun API.
 
 ## Leiningen
 ```clj
-[nilenso/mailgun "0.2.2"]
+[nilenso/mailgun "0.2.3"]
 ```
 
 ## Maven

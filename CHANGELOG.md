@@ -1,4 +1,8 @@
 
+### 0.2.3
+- Add minimal validations of from & to keywords for message-content
+- rename `to-vector` -> `ensure-sequential` as `to-vector` was misleading.
+
 ### 0.2.2
 - Add util functions `to-file` & `to-vector`
 - Now you can pass a lone attachment to `send-mail` as is, without wrapping it in list/vector
