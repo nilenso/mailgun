@@ -29,6 +29,16 @@
                           :attachment ["attachment1" "attachment2"]}]
       (is (= multi-part-map (mail/gen-body request-params))))))
 
+(deftest test-gen-event-body
+  (testing "gen-event-body to see if return a valid query"
+    (let [key "key-3ax6xnjp29jd6fds4gc373sgvjxteol1"
+          params {:limit 10 :event "opened"}
+          expected {:basic-auth ["api" key]
+                    :query-params {:limit 10
+                                   :event "opened"}}
+          result (mail/gen-event-body key params)]
+      (is (= expected result)))))
+
 (deftest parse-message-body
   (testing "parsing the mesage body gives valid fields"
     (let [sample-body-reponse {"X-Envelope-From" "<test@foo.com>"

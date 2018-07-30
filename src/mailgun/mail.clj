@@ -74,12 +74,27 @@
       (client/post url content))
     (throw (Exception. "Invalid/Incomplete message-content"))))
 
+(defn gen-event-body
+  [key params]
+  (merge (gen-auth key) {:query-params params}))
+
 (defn get-stored-events
-  "Returns stored events"
-  [{:keys [domain key]}]
-  (let [url (gen-url "/events" domain)
-        auth (gen-auth key)]
-    (util/json-to-clj (client/get url auth))))
+  "Returns stored events
+
+  This is a multi-arity function. Pass authentication credentials to retrieve
+  all stored events (100 by default) for your domain, or pass a set of query
+  parameters to further refine your event list.
+
+  A sample request with query params would look like
+  (gets-stored-events {:key \"key-3ax6xnjp29jd6fds4gc373sgvjxteol1\" :domain \"bar.com\"}
+                      {:limit 10
+                       :event \"opened\"})"
+  ([auth]
+   (get-stored-events auth {}))
+  ([{:keys [domain key]} query-params]
+   (let [url (gen-url "/events" domain)
+         content (gen-event-body key query-params)]
+     (util/json-to-clj (client/get url content)))))
 
 (defn get-stored-message
   "Returns a stored message given the message-key"
