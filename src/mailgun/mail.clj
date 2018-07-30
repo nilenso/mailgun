@@ -74,6 +74,10 @@
       (client/post url content))
     (throw (Exception. "Invalid/Incomplete message-content"))))
 
+(defn gen-event-body
+  [key params]
+  (merge (gen-auth key) {:query-params params}))
+
 (defn get-stored-events
   "Returns stored events
 
@@ -89,9 +93,8 @@
    (get-stored-events auth {}))
   ([{:keys [domain key]} query-params]
    (let [url (gen-url "/events" domain)
-         auth (gen-auth key)
-         params (merge auth {:query-params query-params})]
-     (util/json-to-clj (client/get url params)))))
+         content (gen-event-body key query-params)]
+     (util/json-to-clj (client/get url content)))))
 
 (defn get-stored-message
   "Returns a stored message given the message-key"
